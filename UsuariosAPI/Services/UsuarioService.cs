@@ -40,11 +40,15 @@ namespace UsuariosAPI.Services
                 throw new ApplicationException("Falha no login");
             }
 
-            var usuario = _signInManager
-                .UserManager
-                .Users
-                .FirstOrDefault(user => user.NormalizedUserName == user.UserName.ToUpper());
 
+            var usuario = await _signInManager
+                .UserManager
+                .FindByNameAsync(dto.Username);
+
+            if(usuario == null)
+            {
+                throw new ApplicationException("Usuário nulo");
+            }
             var token = _tokenService.GenerateToken(usuario);
 
             return token;
