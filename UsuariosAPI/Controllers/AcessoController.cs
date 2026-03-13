@@ -7,10 +7,23 @@ namespace UsuariosAPI.Controllers;
 [Route("Acesso")]
 public class AcessoController : ControllerBase
 {
-    [HttpGet]
-    [Authorize]
-    public IActionResult Get()
+    private IAuthorizationService _authorizationService;
+
+    public AcessoController(IAuthorizationService authorizationService)
     {
-        return Ok("Acesso permitido");
+        _authorizationService = authorizationService;
+    }
+    [HttpGet]
+    [Authorize(Policy = "IdadeMinima")]
+    public async Task<IActionResult> Get()
+    {
+        var resultado = await _authorizationService.AuthorizeAsync(User, "IdadeMinima");
+
+        if (resultado.Succeeded)
+        {
+            return Ok("Acesso permitido pela política");
+        }
+
+        return Unauthorized("A política de idade falhou.");
     }
 }
